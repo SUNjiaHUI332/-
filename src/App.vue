@@ -2,7 +2,7 @@
   <div id="app">
     <div v-if="!isLoggedIn" class="login-container">
       <div class="login-box">
-        <h2>PDF题在线转换系统111</h2>
+        <h2>PDF题在线转换系统</h2>
         <div class="form-group">
           <label>用户名：</label>
           <input v-model="username" type="text" class="form-input" />
