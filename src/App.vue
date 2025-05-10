@@ -40,6 +40,11 @@
           <div class="conversion-system">
             <h3>PDF题在线转换系统</h3>
             <div class="system-info">
+              <p>
+                文件：<span class="status">{{ fileName }}</span>
+              </p>
+            </div>
+            <div class="system-info">
               <p>当前状态：<span class="status">运行中</span></p>
             </div>
           </div>
@@ -203,6 +208,7 @@ export default {
       isLoggedIn: true,
       username: "PDF题在线转换系统",
       password: "123456",
+      fileName: "",
     };
   },
   mounted() {
@@ -219,6 +225,9 @@ export default {
     },
     async handleFileUpload(event) {
       this.isUploading = true;
+      const file = event.target.files[0];
+      this.fileName = file ? file.name : "未选择文件"; // 存储文件名
+
       setTimeout(async () => {
         this.isUploading = false;
         const file = event.target.files[0];
@@ -344,7 +353,6 @@ export default {
                   }
                 }
 
-             
                 // 题目内容处理
                 // const finalContent = 222;
 
@@ -410,7 +418,12 @@ export default {
       const worksheet = XLSX.utils.json_to_sheet(dataWithHeaders);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
-      XLSX.writeFile(workbook, "export.xlsx");
+
+      const exportFileName = this.fileName
+        ? this.fileName.replace(".pdf", ".xlsx")
+        : "export.xlsx";
+      // XLSX.writeFile(workbook, exportFileName);
+      XLSX.writeFile(workbook, exportFileName);
     },
     applyBatchEdit() {
       this.parsedData.forEach((item) => {
