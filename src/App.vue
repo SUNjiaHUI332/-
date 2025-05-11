@@ -59,106 +59,31 @@
             :align="`center`"
           />
 
-          <el-table-column
-            prop="course"
-            label="课程"
-            width="200"
-            :align="`center`"
-          >
+          <el-table-column prop="course" label="课程" :align="`center`">
             <template #default="{ row }">
               <el-input v-model="row.course" />
             </template>
           </el-table-column>
-          <el-table-column
-            prop="unit"
-            label="单元"
-            width="200"
-            :align="`center`"
-          >
+          <el-table-column prop="unit" label="单元" :align="`center`">
             <template #default="{ row }">
               <el-input v-model="row.unit" />
             </template>
           </el-table-column>
-          <el-table-column
-            prop="type"
-            label="题目类型"
-            width="200"
-            :align="`center`"
-          />
-          <el-table-column
-            prop="content"
-            label="题目内容"
-            width="200"
-            :align="`center`"
-          />
-          <el-table-column
-            prop="answer"
-            label="正确答案"
-            width="200"
-            :align="`center`"
-          />
-          <el-table-column
-            prop="analysis"
-            label="解析"
-            width="200"
-            :align="`center`"
-          />
-          <el-table-column
-            prop="image"
-            label="配图"
-            width="200"
-            :align="`center`"
-          />
-          <el-table-column
-            prop="option1"
-            label="选项1"
-            width="200"
-            :align="`center`"
-          />
-          <el-table-column
-            prop="option2"
-            label="选项2"
-            width="200"
-            :align="`center`"
-          />
-          <el-table-column
-            prop="option3"
-            label="选项3"
-            width="200"
-            :align="`center`"
-          />
-          <el-table-column
-            prop="option4"
-            label="选项4"
-            width="200"
-            :align="`center`"
-          />
-          <el-table-column
-            prop="option5"
-            label="选项5"
-            width="200"
-            :align="`center`"
-          />
-          <el-table-column
-            prop="option6"
-            label="选项6"
-            width="200"
-            :align="`center`"
-          />
+          <el-table-column prop="type" label="题目类型" :align="`center`" />
+          <el-table-column prop="content" label="题目内容" :align="`center`" />
+          <el-table-column prop="answer" label="正确答案" :align="`center`" />
+          <el-table-column prop="analysis" label="解析" :align="`center`" />
+          <el-table-column prop="image" label="配图" :align="`center`" />
+          <el-table-column prop="option1" label="选项1" :align="`center`" />
+          <el-table-column prop="option2" label="选项2" :align="`center`" />
+          <el-table-column prop="option3" label="选项3" :align="`center`" />
+          <el-table-column prop="option4" label="选项4" :align="`center`" />
+          <el-table-column prop="option5" label="选项5" :align="`center`" />
+          <el-table-column prop="option6" label="选项6" :align="`center`" />
 
-          <el-table-column
-            prop="option7"
-            label="选项7"
-            width="200"
-            :align="`center`"
-          />
+          <el-table-column prop="option7" label="选项7" :align="`center`" />
 
-          <el-table-column
-            prop="option8"
-            label="选项8"
-            width="200"
-            :align="`center`"
-          />
+          <el-table-column prop="option8" label="选项8" :align="`center`" />
         </el-table>
       </div>
 
@@ -279,7 +204,7 @@ export default {
                   line.startsWith("【羿过解析】")
                 );
 
-                console.log(analysisStartIndex, "解析啊");
+                // console.log(analysisStartIndex, "解析啊");
 
                 var analysisText = lines
                   .slice(analysisStartIndex)
@@ -314,12 +239,25 @@ export default {
                     parsedOptions[optionMap[key]] = value;
                   }
                 });
-                const answerLine1 = lines.find((line) =>
+
+                // 正确答案
+                const answerLine = lines.find((line) =>
                   line.startsWith("参考答案：")
                 );
-                const answerText2 = answerLine1
-                  ? answerLine1.split("参考答案：")[1]
-                  : "";
+
+                // 获取解析开始行索引，如果不存在则使用 lines.length
+                const analysisStartIndex1 =
+                  lines.findIndex((line) => line.startsWith("【羿过解析】")) !==
+                  -1
+                    ? lines.findIndex((line) => line.startsWith("【羿过解析】"))
+                    : lines.length;
+
+                // 获取从参考答案到解析之间的所有内容
+                const answerText2 = lines
+                  .slice(lines.indexOf(answerLine), analysisStartIndex1)
+                  .join("\n")
+                  .replace("参考答案：", "")
+                  .trim();
 
                 // 处理题目内容
                 let questionContent = "";
@@ -337,14 +275,16 @@ export default {
                   if (
                     line.endsWith("。") ||
                     line.endsWith("）") ||
-                    line.endsWith("问：") ||
+                    line.includes("参考答案：") ||
+                    line.endsWith("？") ||
                     /^\(\d+\)/.test(line)
                   ) {
                     questionContent += line.replace(/^\d+\./, ""); // 去掉前面的序号
                     if (
                       line.endsWith("。") ||
                       line.endsWith("）") ||
-                      line.endsWith("问：")
+                      line.includes("参考答案：") ||
+                      line.endsWith("？")
                     ) {
                       break;
                     }
@@ -353,25 +293,23 @@ export default {
                   }
                 }
 
-                // 题目内容处理
-                // const finalContent = 222;
-
+                console.log(answerText2, "正确答案");
                 parsed.push({
                   course: "专升本-法学类",
                   unit: "民法",
                   type: "单选题",
-                  content: questionContent,
-                  answer: answerText2,
-                  analysis: analysisText,
+                  content: questionContent, // 过滤并去除多余空格
+                  answer: answerText2, // 如果是A-H字母则转换为1-8，否则保持原样
+                  analysis: "【德鑫解析】" + analysisText,
                   image: "",
-                  option1: parsedOptions.option1 || "",
-                  option2: parsedOptions.option2 || "",
-                  option3: parsedOptions.option3 || "",
-                  option4: parsedOptions.option4 || "",
-                  option5: parsedOptions.option5 || "",
-                  option6: parsedOptions.option6 || "",
-                  option7: parsedOptions.option7 || "",
-                  option8: parsedOptions.option8 || "",
+                  option1: parsedOptions.option1 ? 1 : "" || "",
+                  option2: parsedOptions.option2 ? 2 : "" || "",
+                  option3: parsedOptions.option3 ? 3 : "" || "",
+                  option4: parsedOptions.option4 ? 4 : "" || "",
+                  option5: parsedOptions.option5 ? 5 : "" || "",
+                  option6: parsedOptions.option6 ? 6 : "" || "",
+                  option7: parsedOptions.option7 ? 7 : "" || "",
+                  option8: parsedOptions.option8 ? 8 : "" || "",
                 });
               }
             });
