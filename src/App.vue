@@ -51,42 +51,118 @@
         </div>
       </div>
       <div class="table-container" v-if="parsedData.length">
-        <el-table height="650" :data="parsedData" style="width: 100%">
+        <el-table
+          height="650"
+          :data="parsedData"
+          style="width: 100%"
+          table-layout="fixed"
+        >
           <el-table-column
             type="index"
             label="序号"
             width="80"
             :align="`center`"
           />
-
-          <el-table-column prop="course" label="课程" :align="`center`">
+          <el-table-column
+            prop="course"
+            label="课程"
+            :align="`center`"
+            width="120"
+          >
             <template #default="{ row }">
               <el-input v-model="row.course" />
             </template>
           </el-table-column>
-          <el-table-column prop="unit" label="单元" :align="`center`">
+          <el-table-column
+            prop="unit"
+            label="单元"
+            :align="`center`"
+            width="120"
+          >
             <template #default="{ row }">
               <el-input v-model="row.unit" />
             </template>
           </el-table-column>
-          <el-table-column prop="type" label="题目类型" :align="`center`" />
-          <el-table-column prop="content" label="题目内容" :align="`center`" />
-          <el-table-column prop="answer" label="正确答案" :align="`center`" />
-          <el-table-column prop="analysis" label="解析" :align="`center`" />
-          <el-table-column prop="image" label="配图" :align="`center`" />
-          <el-table-column prop="option1" label="选项1" :align="`center`" />
-          <el-table-column prop="option2" label="选项2" :align="`center`" />
-          <el-table-column prop="option3" label="选项3" :align="`center`" />
-          <el-table-column prop="option4" label="选项4" :align="`center`" />
-          <el-table-column prop="option5" label="选项5" :align="`center`" />
-          <el-table-column prop="option6" label="选项6" :align="`center`" />
-
-          <el-table-column prop="option7" label="选项7" :align="`center`" />
-
-          <el-table-column prop="option8" label="选项8" :align="`center`" />
+          <el-table-column
+            prop="type"
+            label="题目类型"
+            :align="`center`"
+            width="300"
+          />
+          <el-table-column
+            prop="content"
+            label="题目内容"
+            :align="`center`"
+            width="300"
+          />
+          <el-table-column
+            prop="answer"
+            label="正确答案"
+            :align="`center`"
+            width="300"
+          />
+          <el-table-column
+            prop="analysis"
+            label="解析"
+            :align="`center`"
+            width="300"
+          />
+          <el-table-column
+            prop="image"
+            label="配图"
+            :align="`center`"
+            width="300"
+          />
+          <el-table-column
+            prop="option1"
+            label="选项1"
+            :align="`center`"
+            width="100"
+          />
+          <el-table-column
+            prop="option2"
+            label="选项2"
+            :align="`center`"
+            width="100"
+          />
+          <el-table-column
+            prop="option3"
+            label="选项3"
+            :align="`center`"
+            width="100"
+          />
+          <el-table-column
+            prop="option4"
+            label="选项4"
+            :align="`center`"
+            width="100"
+          />
+          <el-table-column
+            prop="option5"
+            label="选项5"
+            :align="`center`"
+            width="100"
+          />
+          <el-table-column
+            prop="option6"
+            label="选项6"
+            :align="`center`"
+            width="100"
+          />
+          <el-table-column
+            prop="option7"
+            label="选项7"
+            :align="`center`"
+            width="100"
+          />
+          <el-table-column
+            prop="option8"
+            label="选项8"
+            :align="`center`"
+            width="100"
+          />
         </el-table>
       </div>
-
       <!-- 批量编辑模态框 -->
       <div v-if="showBatchEditModal" class="modal-overlay">
         <div class="modal-content">
@@ -256,6 +332,7 @@ export default {
                 const answerText2 = lines
                   .slice(lines.indexOf(answerLine), analysisStartIndex1)
                   .join("\n")
+                  .replace(/\d+/g, "") // 过滤掉所有数字
                   .replace("参考答案：", "")
                   .trim();
 
@@ -279,7 +356,10 @@ export default {
                     line.endsWith("？") ||
                     /^\(\d+\)/.test(line)
                   ) {
-                    questionContent += line.replace(/^\d+\./, ""); // 去掉前面的序号
+                    // 如果包含 "参考答案："，则不添加到 questionContent
+                    if (!line.includes("参考答案：")) {
+                      questionContent += line.replace(/^\d+\./, ""); // 去掉前面的序号
+                    }
                     if (
                       line.endsWith("。") ||
                       line.endsWith("）") ||
@@ -300,7 +380,7 @@ export default {
                   type: "单选题",
                   content: questionContent, // 过滤并去除多余空格
                   answer: answerText2, // 如果是A-H字母则转换为1-8，否则保持原样
-                  analysis: "【德鑫解析】" + analysisText,
+                  analysis: "【德鑫解析】" + (analysisText || "此题暂无解析"),
                   image: "",
                   option1: parsedOptions.option1 ? 1 : "" || "",
                   option2: parsedOptions.option2 ? 2 : "" || "",
