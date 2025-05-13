@@ -2,7 +2,7 @@
   <div id="app">
     <div v-if="!isLoggedIn" class="login-container">
       <div class="login-box">
-        <h2>PDF题在线转换系统</h2>
+        <h2>PDF题在线转换系统（1.0.0）</h2>
         <div class="form-group">
           <label>用户名：</label>
           <input v-model="username" type="text" class="form-input" />
@@ -38,7 +38,7 @@
             </button>
           </div>
           <div class="conversion-system">
-            <h3>PDF题在线转换系统</h3>
+            <h3>PDF题在线转换系统（1.0.0）</h3>
             <div class="system-info">
               <p>
                 文件：<span class="status">{{ fileName }}</span>
@@ -207,7 +207,7 @@ export default {
       batchUnit: "",
       isUploading: false,
       isLoggedIn: true,
-      username: "PDF题在线转换系统",
+      username: "PDF题在线转换系统（1.0.0）",
       password: "123456",
       fileName: "",
     };
@@ -216,18 +216,14 @@ export default {
     // this.setupColumnResize();
   },
   methods: {
-    handleLogin() {
-      // 简单验证
-      if (this.username === "PDF题在线转换系统" && this.password === "123456") {
-        this.isLoggedIn = true;
-      } else {
-        alert("用户名或密码错误");
-      }
-    },
     async handleFileUpload(event) {
       this.isUploading = true;
       const file = event.target.files[0];
       this.fileName = file ? file.name : "未选择文件"; // 存储文件名
+
+      // 从文件名中提取单元内容
+      const unitFromFileName =
+        this.fileName.match(/《(.+?)》/)?.[1] || "默认单元";
 
       setTimeout(async () => {
         this.isUploading = false;
@@ -243,8 +239,10 @@ export default {
               disableAutoFetch: true,
               disableStream: true,
             });
+            
 
             const pdfDoc = await loadingTask.promise;
+
             const numPages = pdfDoc.numPages;
 
             let allText = "";
@@ -340,6 +338,7 @@ export default {
                 let questionContent = "";
                 for (let i = 0; i < lines.length; i++) {
                   const line = lines[i];
+                  console.log(lines,'处理题目内容');
                   if (line.startsWith("A.")) {
                     // 获取A.前面的所有行作为题目内容
                     questionContent = lines
@@ -376,7 +375,7 @@ export default {
                 console.log(answerText2, "正确答案");
                 parsed.push({
                   course: "专升本-法学类",
-                  unit: "民法",
+                  unit: unitFromFileName,
                   type: "单选题",
                   content: questionContent, // 过滤并去除多余空格
                   answer: answerText2, // 如果是A-H字母则转换为1-8，否则保持原样
